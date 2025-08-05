@@ -10,9 +10,9 @@ import wandb
 import tracemalloc
 from codecarbon import EmissionsTracker
 
-from src.paths import EMISSIONS_LOG_DIR, SOURCE_DIR, DATA_DIR, LOGS_DIR
-from src.local_utility import load_yaml_config
-from src.config import WANDB_PROJECT, WANDB_ENTITY
+from legacy.paths import EMISSIONS_LOG_DIR, SOURCE_DIR, DATA_DIR, LOGS_DIR
+from legacy.local_utility import load_yaml_config
+from legacy.config import WANDB_PROJECT, WANDB_ENTITY
 
 
 

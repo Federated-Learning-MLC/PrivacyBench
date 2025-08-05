@@ -12,13 +12,13 @@ from lightning.pytorch.loggers import CSVLogger
 
 from transformers import ViTForImageClassification
 
-from src.opacus import PrivacyEngine
+from legacy.opacus import PrivacyEngine
 from opacus.validators import ModuleValidator
 import tracemalloc
 
-from src.config import NUM_CLASSES, HEIGHT_WIDTH, NUM_WORKERS, AUGMENT, SEED
-from src.local_utility import LightningModel, AlzheimerDataModule, predict_and_plot, set_seed
-from src.tracker import track_emissions
+from legacy.config import NUM_CLASSES, HEIGHT_WIDTH, NUM_WORKERS, AUGMENT, SEED
+from legacy.local_utility import LightningModel, AlzheimerDataModule, predict_and_plot, set_seed
+from legacy.tracker import track_emissions
 
 def trainn_model(experiment_name: str = "CNN Baseline", base_type: str = None, augmentation=AUGMENT):
     efficency_tracker = track_emissions(experiment_name=experiment_name)

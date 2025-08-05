@@ -19,10 +19,10 @@ from opacus import PrivacyEngine
 from opacus.data_loader import DPDataLoader
 from opacus.validators import ModuleValidator
 
-from src.config import NUM_CLASSES, HEIGHT_WIDTH, NUM_WORKERS, AUGMENT, SEED, WANDB_ENTITY, WANDB_PROJECT, ExperimentName
-from src.local_utility import LightningModel, MedicalImageDataModule, predict_and_plot, set_seed, set_device, load_yaml_config
-from src.tracker import track_emissions, setup_wandb, start_memory_tracking, get_peak_memory_usage, append_peak_memory
-from src.federated import evaluate_model
+from legacy.config import NUM_CLASSES, HEIGHT_WIDTH, NUM_WORKERS, AUGMENT, SEED, WANDB_ENTITY, WANDB_PROJECT, ExperimentName
+from legacy.local_utility import LightningModel, MedicalImageDataModule, predict_and_plot, set_seed, set_device, load_yaml_config
+from legacy.tracker import track_emissions, setup_wandb, start_memory_tracking, get_peak_memory_usage, append_peak_memory
+from legacy.federated import evaluate_model
 
 DEVICE = set_device()
 

@@ -5,6 +5,7 @@ Handles configuration dependencies, defaults, and inheritance
 from typing import Dict, Any, Optional
 from pathlib import Path
 import copy
+from typing import Dict, Any, List, Optional
 
 
 class ConfigResolver:

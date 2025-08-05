@@ -11,6 +11,7 @@ cli/commands/list.py
 cli/commands/run.py
 cli/commands/validate.py
 legacy/FL_client.py
+legacy/FL_server.py
 legacy/__init__.py
 legacy/config.py
 legacy/federated.py
@@ -19,6 +20,8 @@ legacy/paths.py
 legacy/privacy_engine.py
 legacy/tracker.py
 legacy/train.py
+legacy/traindp.py
+legacy/trainn.py
 privacybench.egg-info/PKG-INFO
 privacybench.egg-info/SOURCES.txt
 privacybench.egg-info/dependency_links.txt

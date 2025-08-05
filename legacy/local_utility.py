@@ -24,9 +24,9 @@ from datasets import DatasetDict, load_dataset
 from collections import OrderedDict
 from typing import List, Optional, Literal
 
-from src.paths import SOURCE_DIR
-from src import config
-from src.config import NUM_WORKERS, SEED, ExperimentName
+from legacy.paths import SOURCE_DIR
+from legacy import config
+from legacy.config import NUM_WORKERS, SEED, ExperimentName
 
 
 

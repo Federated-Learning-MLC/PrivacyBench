@@ -6,9 +6,9 @@ warnings.filterwarnings("ignore", category=UserWarning)
 from flwr.client import NumPyClient
 from flwr.common import Scalar, NDArrays
 
-from src.federated import train_model, evaluate_model
-from src.privacy_engine import train_FL_model
-from src.local_utility import set_device, set_weights, get_weights, load_yaml_config, _load_federated_config
+from legacy.federated import train_model, evaluate_model
+from legacy.privacy_engine import train_FL_model
+from legacy.local_utility import set_device, set_weights, get_weights, load_yaml_config, _load_federated_config
 
 
 DEVICE = set_device()

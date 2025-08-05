@@ -16,8 +16,8 @@ from flwr.server.workflow import DefaultWorkflow, SecAggPlusWorkflow
 from flwr.common import ndarrays_to_parameters
 from flwr.common.logger import update_console_handler
 
-from src import config 
-from src.local_utility import (
+from legacy import config 
+from legacy.local_utility import (
     set_device, 
     set_weights,
     get_weights,
@@ -26,8 +26,8 @@ from src.local_utility import (
     load_yaml_config,
     _load_federated_config,
 )
-from src.federated import evaluate_model, final_test_evaluation
-from src.tracker import start_memory_tracking, append_peak_memory, get_peak_memory_usage
+from legacy.federated import evaluate_model, final_test_evaluation
+from legacy.tracker import start_memory_tracking, append_peak_memory, get_peak_memory_usage
 
 
 DEVICE = set_device()

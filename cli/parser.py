@@ -1,17 +1,43 @@
 """
-Configuration parser that converts CLI args + YAML configs
-Maps your existing experiments.yaml to CLI interface
+Configuration Parser - Phase 1 with Safe Legacy Imports
 """
 
 import yaml
+import argparse
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
+from dataclasses import dataclass
 import sys
 
-# Import your existing config utilities
-sys.path.append(str(Path(__file__).parent.parent))
-from legacy.local_utility import load_yaml_config
-from legacy.config import ExperimentName
+# Safe legacy imports with fallbacks
+try:
+    from legacy.local_utility import load_yaml_config
+    LEGACY_UTILITY_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Could not import legacy utilities: {e}")
+    LEGACY_UTILITY_AVAILABLE = False
+    
+    # Fallback function
+    def load_yaml_config(key=None):
+        """Fallback when legacy utilities aren't available."""
+        print(f"Warning: Using fallback for load_yaml_config (key: {key})")
+        return {}
+
+try:
+    from legacy.config import ExperimentName
+    LEGACY_CONFIG_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Could not import legacy config: {e}")
+    LEGACY_CONFIG_AVAILABLE = False
+    
+    # Fallback enum-like class
+    class ExperimentName:
+        """Fallback for ExperimentName enum."""
+        CNN_BASELINE = "cnn_baseline"
+        VIT_BASELINE = "vit_baseline"
+        FL_CNN = "fl_cnn"
+        FL_VIT = "fl_vit"
+        # Add other experiment names as needed
 
 
 class ConfigParser:

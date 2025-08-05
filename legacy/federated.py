@@ -18,9 +18,9 @@ import torch.nn as nn
 from sklearn.metrics import classification_report
 from torchmetrics import Accuracy, Precision, Recall, F1Score, AUROC, ROC, MatthewsCorrCoef, ConfusionMatrix
 
-from src.paths import EMISSIONS_LOG_DIR, DATA_DIR
-from src.local_utility import set_device, set_seed, load_yaml_config
-from src.tracker import _get_federated_emissions_summary, get_peak_memory_usage, start_memory_tracking, append_peak_memory, setup_wandb
+from legacy.paths import EMISSIONS_LOG_DIR, DATA_DIR
+from legacy.local_utility import set_device, set_seed, load_yaml_config
+from legacy.tracker import _get_federated_emissions_summary, get_peak_memory_usage, start_memory_tracking, append_peak_memory, setup_wandb
 
 
 DEVICE = set_device()

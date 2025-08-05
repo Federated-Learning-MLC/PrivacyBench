@@ -18,9 +18,9 @@ from opacus.validators import ModuleValidator
 
 import wandb
 
-from src.config import NUM_CLASSES, HEIGHT_WIDTH, NUM_WORKERS, AUGMENT, SEED, WANDB_ENTITY, WANDB_PROJECT, ExperimentName
-from src.local_utility import LightningModel, MedicalImageDataModule, predict_and_plot, set_seed
-from src.tracker import track_emissions
+from legacy.config import NUM_CLASSES, HEIGHT_WIDTH, NUM_WORKERS, AUGMENT, SEED, WANDB_ENTITY, WANDB_PROJECT, ExperimentName
+from legacy.local_utility import LightningModel, MedicalImageDataModule, predict_and_plot, set_seed
+from legacy.tracker import track_emissions
 
 def traindp_model(data_name: str, experiment_name: ExperimentName = ExperimentName.DP_CNN, base_type: str = None, augmentation=AUGMENT, num_labels: int = NUM_CLASSES):
     """

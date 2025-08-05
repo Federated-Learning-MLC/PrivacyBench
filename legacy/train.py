@@ -10,9 +10,9 @@ from lightning.pytorch.loggers import CSVLogger, WandbLogger
 
 from transformers import ViTForImageClassification
  
-from src.config import NUM_CLASSES, HEIGHT_WIDTH, NUM_WORKERS, AUGMENT, SEED, WANDB_ENTITY, WANDB_PROJECT, ExperimentName
-from src.local_utility import LightningModel, MedicalImageDataModule, predict_and_plot, set_seed
-from src.tracker import track_emissions
+from legacy.config import NUM_CLASSES, HEIGHT_WIDTH, NUM_WORKERS, AUGMENT, SEED, WANDB_ENTITY, WANDB_PROJECT, ExperimentName
+from legacy.local_utility import LightningModel, MedicalImageDataModule, predict_and_plot, set_seed
+from legacy.tracker import track_emissions
 
 
 
