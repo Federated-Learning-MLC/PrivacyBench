@@ -1,0 +1,138 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "privacybench"
+version = "1.0.0"
+description = "PPML Privacy-utility-cost Benchmark Framework for Efficiecny"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    {name = "PrivacyBench Team"}
+]
+maintainers = [
+    {name = "PrivacyBench Team"}
+]
+keywords = ["privacy", "machine-learning", "federated-learning", "differential-privacy"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security :: Cryptography",
+]
+
+dependencies = [
+    # Core CLI dependencies
+    "pyyaml>=6.0",
+    "tabulate>=0.9.0",
+    "click>=8.0.0",
+    
+    # Core ML and data processing
+    "numpy>=1.24.0,<2.0",
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "torchmetrics>=1.0.0",
+    
+    # Privacy and federated learning
+    "flwr[simulation]>=1.10.0",
+    "opacus>=1.4.0",
+    
+    # Data and utilities
+    "datasets>=2.14.0",
+    "albumentations>=1.3.0",
+    "transformers>=4.30.0",
+    "tqdm>=4.65.0",
+    
+    # Logging and monitoring
+    "loguru>=0.7.0",
+    "codecarbon>=2.8.3",
+    "wandb>=0.15.0",
+    "python-dotenv>=1.0.0",
+    
+    # Visualization and analysis
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "watermark>=2.4.0",
+    
+    # Development and notebook support
+    "jupyter>=1.0.0",
+    "lightning>=2.1.0",
+    "protobuf>=4.21.0",
+]
+
+[project.optional-dependencies]
+# SMPC dependencies (install separately when needed in Phase 3)
+smpc = [
+    "syft>=0.8.0",
+]
+
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+]
+
+[project.urls]
+Repository = "https://github.com/Federated-Learning-MLC/PrivacyBench"
+
+[project.scripts]
+privacybench = "cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cli*", "core*", "execution*", "legacy*"]
+exclude = ["tests*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | legacy
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+skip_glob = ["legacy/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--cov=cli --cov=core --cov=execution --cov-report=term-missing --cov-report=html"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]

@@ -1,0 +1,68 @@
+# Sample PrivacyBench Experiment Configuration
+# CNN Baseline on Alzheimer Dataset
+# Maps to: notebooks/experiments/01. CNN Baseline.ipynb
+
+metadata:
+  name: "cnn_baseline_alzheimer"
+  experiment_type: "cnn_baseline"
+  dataset: "alzheimer"
+  description: "Baseline CNN experiment on Alzheimer dataset"
+  version: "1.0.0"
+  tags: ["baseline", "cnn", "alzheimer"]
+
+dataset:
+  name: "alzheimer"
+  config:
+    augmentation: true
+    test_split: 0.08
+    validation_split: 0.1
+    height_width: 224
+    num_workers: 4
+    preprocessing:
+      resize: [224, 224]
+      normalize: true
+
+model:
+  architecture: "cnn"
+  config:
+    pretrained: true
+    num_classes: 4
+    dropout: 0.1
+    base_model: "resnet18"
+
+privacy:
+  techniques: []  # No privacy for baseline experiment
+
+training:
+  epochs: 50
+  batch_size: 32
+  learning_rate: 0.0002
+  optimizer: "adam"
+  early_stopping:
+    patience: 7
+    monitor: "val_accuracy"
+  seed: 42
+
+resources:
+  gpu: true
+  num_workers: 4
+  memory_limit: "8GB"
+
+tracking:
+  wandb:
+    project: "PrivacyBench"
+    entity: "your-entity"
+  energy:
+    track_emissions: true
+    country_iso_code: "USA"
+
+output:
+  directory: "./results"
+  save_model: true
+  export_formats: ["json", "csv"]
+  
+# Expected results (from previous experiments)
+expected_results:
+  accuracy: 0.979
+  energy_kwh: 0.026
+  training_time_seconds: 588
