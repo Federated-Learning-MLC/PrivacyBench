@@ -1,18 +1,45 @@
-# CLI - Main entry point
-# Converts: jupyter notebook → privacybench run command
+#!/usr/bin/env python3
+"""
+PrivacyBench CLI - Main Entry Point
+====================================
+
+This is the main entry point for the PrivacyBench command-line interface.
+It provides commands for running privacy-preserving machine learning experiments.
+
+Usage:
+    privacybench --help
+    privacybench list experiments
+    privacybench run --config configs/experiments/baselines/cnn_alzheimer.yaml
+"""
 
 import sys
 import argparse
 from pathlib import Path
 from typing import Optional
 
-from cli.commands.run import RunCommand
-from cli.commands.list import ListCommand
-from cli.commands.validate import ValidateCommand
+# Import CLI commands with error handling
+try:
+    from cli.commands.list import ListCommand
+except ImportError as e:
+    print(f"Warning: Could not import ListCommand: {e}")
+    ListCommand = None
 
+try:
+    from cli.commands.run import RunCommand
+except ImportError as e:
+    print(f"Warning: Could not import RunCommand: {e}")
+    RunCommand = None
 
-def setup_parser() -> argparse.ArgumentParser:
-    # main CLI setup argument parser
+try:
+    from cli.commands.validate import ValidateCommand
+except ImportError as e:
+    print(f"Warning: Could not import ValidateCommand: {e}")
+    ValidateCommand = None
+
+__version__ = "1.0.0"
+
+def create_parser() -> argparse.ArgumentParser:
+    """Create the main argument parser with all subcommands."""
     parser = argparse.ArgumentParser(
         prog="privacybench",
         description="PPML Privacy-utility-cost Benchmarking Framework for Efficiency",
@@ -31,186 +58,173 @@ def setup_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--version", 
         action="version", 
-        version="PrivacyBench 1.0.0"
+        version=f"%(prog)s {__version__}"
     )
     
-    # subparsers for commands
+    parser.add_argument(
+        "--verbose", "-v",
+        action="store_true",
+        help="Enable verbose output"
+    )
+    
+    # Create subparsers for commands
     subparsers = parser.add_subparsers(
-        dest="command", 
-        help="Available commands",
-        metavar="COMMAND"
+        title="Available commands",
+        dest="command",
+        help="Available commands"
     )
     
-    # run command
-    run_parser = subparsers.add_parser(
-        "run", 
-        help="Run privacy-preserving ML experiments",
-        description="Execute experiments from CLI instead of notebooks"
-    )
-    setup_run_parser(run_parser)
-    
-    # list command  
+    # LIST command - FIXED: Proper structure for "privacybench list experiments"
     list_parser = subparsers.add_parser(
         "list",
         help="List available components",
-        description="Display available experiments, datasets, models, and privacy techniques"
+        description="Display formatted tables of available options"
     )
-    setup_list_parser(list_parser)
+    list_parser.add_argument(
+        "component",
+        choices=["experiments", "datasets", "models", "privacy"],
+        help="Component type to list"
+    )
     
-    # validate command
+    # VALIDATE command
     validate_parser = subparsers.add_parser(
         "validate",
-        help="Validate experiment configurations", 
-        description="Check YAML configuration files for errors"
+        help="Validate experiment configurations",
+        description="Check configuration syntax and required fields"
     )
-    setup_validate_parser(validate_parser)
-    
-    return parser
-
-
-def setup_run_parser(parser: argparse.ArgumentParser) -> None:
-    
-    """Setup run command arguments"""
-    
-    parser.add_argument(
-        "--experiment",
-        choices=[
-            # CNN exps
-            "cnn_baseline", "cnn_base",
-            # ViT exps  
-            "vit_baseline", "vit_base",
-            # FL exps
-            "fl_cnn", "fl_vit", "fl_cnn_base", "fl_vit_base",
-            # DP exps
-            "dp_cnn", "dp_vit", "dp_cnn_base", "dp_vit_base", 
-            # Hybrid exps
-            "fl_dp_cnn", "fl_smpc_cnn", "fl_cdp_sf_cnn",
-            # SMPC exps
-            "smpc_cnn", "smpc_vit"
-        ],
-        help="Experiment to run (maps to your existing notebooks)"
-    )
-    
-    # dataset selection (existing datasets)
-    parser.add_argument(
-        "--dataset",
-        choices=["alzheimer", "skin_lesions"],
+    validate_parser.add_argument(
+        "--config", "-c",
+        type=Path,
         required=True,
-        help="Dataset to use for training"
+        help="Path to configuration file to validate"
     )
     
-    # config file
-    parser.add_argument(
-        "--config",
-        type=Path,
-        help="Custom YAML configuration file"
+    # RUN command
+    run_parser = subparsers.add_parser(
+        "run",
+        help="Run privacy-preserving ML experiments",
+        description="Execute experiments with specified configurations"
     )
     
-    # output dir
-    parser.add_argument(
-        "--output",
+    # Run command arguments - mutually exclusive group
+    run_group = run_parser.add_mutually_exclusive_group(required=True)
+    run_group.add_argument(
+        "--config", "-c",
         type=Path,
-        default="./results",
+        help="Path to YAML configuration file"
+    )
+    run_group.add_argument(
+        "--experiment", "-e",  
+        type=str,
+        choices=[
+            "cnn_baseline", "vit_baseline",
+            "fl_cnn", "fl_vit", 
+            "dp_cnn", "dp_vit",
+            "fl_smpc_cnn", "fl_smpc_vit",
+            "fl_cdp_sf_cnn", "fl_cdp_sf_vit",
+            "fl_cdp_sa_cnn", "fl_cdp_sa_vit",
+            "fl_cdp_cf_cnn", "fl_cdp_cf_vit",
+            "fl_cdp_ca_cnn", "fl_cdp_ca_vit",
+            "fl_ldp_mod_cnn", "fl_ldp_mod_vit",
+            "fl_ldp_pe_cnn", "fl_ldp_pe_vit"
+        ],
+        help="Experiment name (requires --dataset)"
+    )
+    
+    # Additional run arguments
+    run_parser.add_argument(
+        "--dataset", "-d",
+        type=str,
+        choices=["alzheimer", "skin_lesions"],
+        help="Dataset name (required with --experiment)"
+    )
+    run_parser.add_argument(
+        "--output", "-o",
+        type=Path,
+        default=Path("./results"),
         help="Output directory for results (default: ./results)"
     )
-    
-    # dry run (validate without execution)
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Validate configuration without running experiment"
+    run_parser.add_argument(
+        "--gpu", "-g",
+        type=int,
+        help="GPU device ID to use (default: auto-detect)"
     )
-    
-    # Additional options
-    parser.add_argument(
-        "--seed",
+    run_parser.add_argument(
+        "--seed", "-s",
         type=int,
         default=42,
         help="Random seed for reproducibility (default: 42)"
     )
-    
-    parser.add_argument(
-        "--gpu",
+    run_parser.add_argument(
+        "--dry-run",
         action="store_true",
-        default=True,
-        help="Use GPU if available (default: True)"
-    )
-
-
-def setup_list_parser(parser: argparse.ArgumentParser) -> None:
-    
-    """Setup list command arguments"""
-    
-    parser.add_argument(
-        "component",
-        choices=["experiments", "datasets", "models", "privacy", "all"],
-        nargs="?",
-        default="all",
-        help="Component type to list (default: all)"
-    )
-
-
-def setup_validate_parser(parser: argparse.ArgumentParser) -> None:
-    
-    """Setup validate command arguments"""
-    
-    parser.add_argument(
-        "--config",
-        type=Path,
-        required=True,
-        help="YAML configuration file to validate"
+        help="Show what would be executed without running"
     )
     
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Show detailed validation information"
-    )
+    return parser
 
-
-def route_command(args: argparse.Namespace) -> int:
+def validate_run_args(args) -> bool:
+    """Validate run command arguments."""
+    if args.experiment and not args.dataset:
+        print("Error: --dataset is required when using --experiment")
+        return False
     
-    """Route parsed arguments to appropriate command handler"""
+    if args.config and not args.config.exists():
+        print(f"Error: Configuration file not found: {args.config}")
+        return False
+        
+    return True
+
+def main() -> int:
+    """Main entry point for the CLI."""
+    parser = create_parser()
+    
+    # Parse arguments
+    if len(sys.argv) == 1:
+        parser.print_help()
+        return 0
+        
+    args = parser.parse_args()
     
     try:
-        if args.command == "run":
-            cmd = RunCommand()
-            return cmd.execute(args)
-        elif args.command == "list":
-            cmd = ListCommand()
-            return cmd.execute(args)
+        # Route to appropriate command handler
+        if args.command == "list":
+            if ListCommand is None:
+                print("❌ List command not available - import error")
+                return 1
+            command = ListCommand()
+            return command.execute(args.component, verbose=args.verbose)
+            
         elif args.command == "validate":
-            cmd = ValidateCommand()
-            return cmd.execute(args)
+            if ValidateCommand is None:
+                print("❌ Validate command not available - import error")
+                return 1
+            command = ValidateCommand()
+            return command.execute(args.config, verbose=args.verbose)
+            
+        elif args.command == "run":
+            if not validate_run_args(args):
+                return 1
+            if RunCommand is None:
+                print("❌ Run command not available - import error")
+                return 1
+            command = RunCommand()
+            return command.execute(args)  # FIXED: Remove verbose parameter
+            
         else:
-            print("❌ Error: No command specified. Use --help for usage information.")
+            parser.print_help()
             return 1
             
     except KeyboardInterrupt:
-        print("\n⏹️ Operation cancelled by user")
+        print("\n🛑 Operation cancelled by user")
         return 130
     except Exception as e:
-        print(f"❌ Error: {e}")
-        if hasattr(args, 'verbose') and args.verbose:
+        if args.verbose:
             import traceback
             traceback.print_exc()
+        else:
+            print(f"❌ Error: {e}")
         return 1
-
-
-def main() -> int:
-    
-    """Main CLI entry point called by 'privacybench' command"""
-    
-    parser = setup_parser()
-    args = parser.parse_args()
-    
-    # show help if no command specified
-    if not args.command:
-        parser.print_help()
-        return 0
-    
-    # route to appropriate command handler
-    return route_command(args)
 
 if __name__ == "__main__":
     sys.exit(main())
