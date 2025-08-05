@@ -1,0 +1,756 @@
+# File: configs/schema.yaml - Configuration Schema Validation
+# Define the schema for validating individual experiment configurations
+
+schema_version: "1.0"
+description: "PrivacyBench experiment configuration schema"
+
+experiment:
+  type: string
+  required: true
+  description: "Experiment identifier"
+
+dataset:
+  type: object
+  required: true
+  properties:
+    name:
+      type: string
+      required: true
+      enum: ["alzheimer", "skin_lesions"]
+    batch_size:
+      type: integer
+      default: 32
+      minimum: 1
+      maximum: 512
+    augment:
+      type: boolean
+      default: true
+    height_width:
+      type: array
+      items:
+        type: integer
+      default: [224, 224]
+
+model:
+  type: object
+  required: true
+  properties:
+    architecture:
+      type: string
+      required: true
+      enum: ["cnn", "vit"]
+    pretrained:
+      type: boolean
+      default: true
+    num_classes:
+      type: integer
+      minimum: 2
+      maximum: 1000
+
+training:
+  type: object
+  properties:
+    epochs:
+      type: integer
+      default: 50
+      minimum: 1
+      maximum: 1000
+    learning_rate:
+      type: number
+      default: 0.00025
+      minimum: 0.00001
+      maximum: 1.0
+    batch_size:
+      type: integer
+      default: 32
+    seed:
+      type: integer
+      default: 42
+    patience:
+      type: integer
+      default: 10
+
+privacy:
+  type: object
+  properties:
+    techniques:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: ["federated_learning", "differential_privacy", "secure_multiparty_computation"]
+          config:
+            type: object
+
+output:
+  type: object
+  properties:
+    directory:
+      type: string
+      default: "./results"
+    save_model:
+      type: boolean
+      default: true
+    formats:
+      type: array
+      items:
+        type: string
+        enum: ["json", "csv", "yaml"]
+      default: ["json", "csv"]
+
+tracking:
+  type: object
+  properties:
+    wandb:
+      type: boolean
+      default: true
+    codecarbon:
+      type: boolean
+      default: true
+    log_level:
+      type: string
+      enum: ["DEBUG", "INFO", "WARNING", "ERROR"]
+      default: "INFO"
+
+# =============================================================================
+
+# File: configs/experiments/baselines/cnn_alzheimer.yaml
+# CNN Baseline experiment for Alzheimer dataset
+
+experiment: "cnn_baseline"
+description: "CNN baseline experiment on Alzheimer MRI dataset"
+
+dataset:
+  name: "alzheimer"
+  batch_size: 32
+  augment: true
+  height_width: [224, 224]
+  num_workers: 4
+
+model:
+  architecture: "cnn"
+  pretrained: true
+  num_classes: 4
+
+training:
+  epochs: 50
+  learning_rate: 0.00025
+  batch_size: 32
+  seed: 42
+  patience: 10
+  optimizer: "adam"
+  scheduler: "cosine"
+
+output:
+  directory: "./results"
+  save_model: true
+  formats: ["json", "csv", "yaml"]
+
+tracking:
+  wandb: true
+  codecarbon: true
+  log_level: "INFO"
+
+expected_results:
+  accuracy: 0.979
+  f1_score: 0.9785
+  roc_auc: 0.9958
+  training_time: 588.0
+  energy_kwh: 0.026
+  co2_kg: 0.0118
+
+# =============================================================================
+
+# File: configs/experiments/baselines/cnn_skin_lesions.yaml
+# CNN Baseline experiment for Skin Lesions dataset
+
+experiment: "cnn_baseline"
+description: "CNN baseline experiment on ISIC skin lesions dataset"
+
+dataset:
+  name: "skin_lesions"
+  batch_size: 32
+  augment: true
+  height_width: [224, 224]
+  num_workers: 4
+
+model:
+  architecture: "cnn"
+  pretrained: true
+  num_classes: 8
+
+training:
+  epochs: 50
+  learning_rate: 0.00025
+  batch_size: 32
+  seed: 42
+  patience: 10
+  optimizer: "adam"
+  scheduler: "cosine"
+
+output:
+  directory: "./results"
+  save_model: true
+  formats: ["json", "csv", "yaml"]
+
+tracking:
+  wandb: true
+  codecarbon: true
+  log_level: "INFO"
+
+expected_results:
+  accuracy: 0.952
+  f1_score: 0.948
+  roc_auc: 0.985
+  training_time: 642.0
+  energy_kwh: 0.031
+  co2_kg: 0.014
+
+# =============================================================================
+
+# File: configs/experiments/baselines/vit_alzheimer.yaml
+# ViT Baseline experiment for Alzheimer dataset
+
+experiment: "vit_baseline"
+description: "Vision Transformer baseline experiment on Alzheimer MRI dataset"
+
+dataset:
+  name: "alzheimer"
+  batch_size: 16  # Smaller batch size for ViT
+  augment: true
+  height_width: [224, 224]
+  num_workers: 4
+
+model:
+  architecture: "vit"
+  pretrained: true
+  num_classes: 4
+  checkpoint: "google/vit-base-patch16-224-in21k"
+
+training:
+  epochs: 30  # Fewer epochs for ViT
+  learning_rate: 0.0002
+  batch_size: 16
+  seed: 42
+  patience: 8
+  optimizer: "adamw"
+  scheduler: "linear"
+
+output:
+  directory: "./results"
+  save_model: true
+  formats: ["json", "csv", "yaml"]
+
+tracking:
+  wandb: true
+  codecarbon: true
+  log_level: "INFO"
+
+expected_results:
+  accuracy: 0.990
+  f1_score: 0.989
+  roc_auc: 0.998
+  training_time: 3246.0
+  energy_kwh: 0.119
+  co2_kg: 0.054
+
+# =============================================================================
+
+# File: configs/experiments/baselines/vit_skin_lesions.yaml
+# ViT Baseline experiment for Skin Lesions dataset
+
+experiment: "vit_baseline"
+description: "Vision Transformer baseline experiment on ISIC skin lesions dataset"
+
+dataset:
+  name: "skin_lesions"
+  batch_size: 16
+  augment: true
+  height_width: [224, 224]
+  num_workers: 4
+
+model:
+  architecture: "vit"
+  pretrained: true
+  num_classes: 8
+  checkpoint: "google/vit-base-patch16-224-in21k"
+
+training:
+  epochs: 30
+  learning_rate: 0.0002
+  batch_size: 16
+  seed: 42
+  patience: 8
+  optimizer: "adamw"
+  scheduler: "linear"
+
+output:
+  directory: "./results"
+  save_model: true
+  formats: ["json", "csv", "yaml"]
+
+tracking:
+  wandb: true
+  codecarbon: true
+  log_level: "INFO"
+
+expected_results:
+  accuracy: 0.968
+  f1_score: 0.964
+  roc_auc: 0.992
+  training_time: 3450.0
+  energy_kwh: 0.134
+  co2_kg: 0.061
+
+# =============================================================================
+
+# File: configs/experiments/federated/fl_cnn_configurations.yaml
+# Federated Learning CNN experiments for both datasets
+
+fl_cnn_alzheimer:
+  experiment: "fl_cnn"
+  description: "Federated Learning CNN on Alzheimer dataset"
+  
+  dataset:
+    name: "alzheimer"
+    batch_size: 32
+    augment: true
+    height_width: [224, 224]
+    num_workers: 4
+  
+  model:
+    architecture: "cnn"
+    pretrained: true
+    num_classes: 4
+  
+  privacy:
+    techniques:
+      - name: "federated_learning"
+        config:
+          num_clients: 3
+          num_rounds: 5
+          client_fraction: 1.0
+          min_clients: 3
+          strategy: "FedAvg"
+  
+  training:
+    epochs: 10  # Per client
+    learning_rate: 0.001
+    batch_size: 32
+    seed: 42
+  
+  expected_results:
+    accuracy: 0.975
+    training_time: 882.0
+    energy_kwh: 0.036
+
+fl_cnn_skin_lesions:
+  experiment: "fl_cnn"
+  description: "Federated Learning CNN on Skin Lesions dataset"
+  
+  dataset:
+    name: "skin_lesions"
+    batch_size: 32
+    augment: true
+    height_width: [224, 224]
+    num_workers: 4
+  
+  model:
+    architecture: "cnn"
+    pretrained: true
+    num_classes: 8
+  
+  privacy:
+    techniques:
+      - name: "federated_learning"
+        config:
+          num_clients: 3
+          num_rounds: 5
+          client_fraction: 1.0
+          min_clients: 3
+          strategy: "FedAvg"
+  
+  training:
+    epochs: 10
+    learning_rate: 0.001
+    batch_size: 32
+    seed: 42
+  
+  expected_results:
+    accuracy: 0.945
+    training_time: 925.0
+    energy_kwh: 0.041
+
+# =============================================================================
+
+# File: configs/experiments/federated/fl_vit_configurations.yaml
+# Federated Learning ViT experiments
+
+fl_vit_alzheimer:
+  experiment: "fl_vit"
+  description: "Federated Learning ViT on Alzheimer dataset"
+  
+  dataset:
+    name: "alzheimer"
+    batch_size: 16
+    augment: true
+    height_width: [224, 224]
+    num_workers: 4
+  
+  model:
+    architecture: "vit"
+    pretrained: true
+    num_classes: 4
+    checkpoint: "google/vit-base-patch16-224-in21k"
+  
+  privacy:
+    techniques:
+      - name: "federated_learning"
+        config:
+          num_clients: 3
+          num_rounds: 3  # Fewer rounds for ViT
+          client_fraction: 1.0
+          min_clients: 3
+          strategy: "FedAvg"
+  
+  training:
+    epochs: 5  # Fewer epochs per client for ViT
+    learning_rate: 0.0005
+    batch_size: 16
+    seed: 42
+  
+  expected_results:
+    accuracy: 0.985
+    training_time: 2100.0
+    energy_kwh: 0.089
+
+# =============================================================================
+
+# File: configs/experiments/privacy/dp_configurations.yaml
+# Differential Privacy experiments for CNN and ViT
+
+dp_cnn_alzheimer:
+  experiment: "dp_cnn"
+  description: "Differential Privacy CNN on Alzheimer dataset"
+  
+  dataset:
+    name: "alzheimer"
+    batch_size: 64  # Larger batch for DP
+    augment: true
+    height_width: [224, 224]
+    num_workers: 4
+  
+  model:
+    architecture: "cnn"
+    pretrained: true
+    num_classes: 4
+  
+  privacy:
+    techniques:
+      - name: "differential_privacy"
+        config:
+          epsilon: 1.0
+          delta: 1e-5
+          max_grad_norm: 1.0
+          noise_multiplier: 1.1
+  
+  training:
+    epochs: 40  # May need more epochs with DP
+    learning_rate: 0.001
+    batch_size: 64
+    seed: 42
+  
+  expected_results:
+    accuracy: 0.964  # Slightly lower due to DP noise
+    training_time: 720.0
+    energy_kwh: 0.032
+
+dp_vit_alzheimer:
+  experiment: "dp_vit"
+  description: "Differential Privacy ViT on Alzheimer dataset"
+  
+  dataset:
+    name: "alzheimer"
+    batch_size: 32
+    augment: true
+    height_width: [224, 224]
+    num_workers: 4
+  
+  model:
+    architecture: "vit"
+    pretrained: true
+    num_classes: 4
+    checkpoint: "google/vit-base-patch16-224-in21k"
+  
+  privacy:
+    techniques:
+      - name: "differential_privacy"
+        config:
+          epsilon: 2.0  # Higher epsilon for ViT
+          delta: 1e-5
+          max_grad_norm: 1.2
+          noise_multiplier: 0.9
+  
+  training:
+    epochs: 25
+    learning_rate: 0.0003
+    batch_size: 32
+    seed: 42
+  
+  expected_results:
+    accuracy: 0.978
+    training_time: 3800.0
+    energy_kwh: 0.135
+
+# =============================================================================
+
+# File: configs/experiments/privacy/smpc_configurations.yaml
+# Secure Multi-Party Computation experiments
+
+smpc_cnn_alzheimer:
+  experiment: "smpc_cnn"
+  description: "SMPC CNN on Alzheimer dataset"
+  
+  dataset:
+    name: "alzheimer"
+    batch_size: 16  # Smaller batches for SMPC overhead
+    augment: false  # Disable augmentation for SMPC
+    height_width: [224, 224]
+    num_workers: 2
+  
+  model:
+    architecture: "cnn"
+    pretrained: false  # SMPC may not support pretrained weights
+    num_classes: 4
+  
+  privacy:
+    techniques:
+      - name: "secure_multiparty_computation"
+        config:
+          num_parties: 3
+          threshold: 2
+          protocol: "secret_sharing"
+  
+  training:
+    epochs: 20  # Fewer epochs due to SMPC overhead
+    learning_rate: 0.01  # Higher learning rate
+    batch_size: 16
+    seed: 42
+  
+  expected_results:
+    accuracy: 0.955  # May be lower due to SMPC constraints
+    training_time: 4200.0  # Much longer due to cryptographic overhead
+    energy_kwh: 0.156
+
+# =============================================================================
+
+# File: configs/experiments/hybrid/fl_dp_cnn_alzheimer.yaml
+# Federated Learning + Differential Privacy hybrid
+
+experiment: "fl_dp_cnn"
+description: "Federated Learning + Differential Privacy CNN on Alzheimer dataset"
+
+dataset:
+  name: "alzheimer"
+  batch_size: 64
+  augment: true
+  height_width: [224, 224]
+  num_workers: 4
+
+model:
+  architecture: "cnn"
+  pretrained: true
+  num_classes: 4
+
+privacy:
+  techniques:
+    - name: "federated_learning"
+      config:
+        num_clients: 3
+        num_rounds: 5
+        client_fraction: 1.0
+        min_clients: 3
+        strategy: "FedAvg"
+    - name: "differential_privacy"
+      config:
+        epsilon: 3.0  # Higher epsilon for FL+DP combination
+        delta: 1e-5
+        max_grad_norm: 1.0
+        noise_multiplier: 0.8
+
+training:
+  epochs: 8  # Per client with DP
+  learning_rate: 0.002
+  batch_size: 64
+  seed: 42
+
+output:
+  directory: "./results"
+  save_model: true
+  formats: ["json", "csv", "yaml"]
+
+tracking:
+  wandb: true
+  codecarbon: true
+  log_level: "INFO"
+
+expected_results:
+  accuracy: 0.955  # Combined privacy impact
+  training_time: 1024.0
+  energy_kwh: 0.045
+  co2_kg: 0.020
+
+# =============================================================================
+
+# File: configs/experiments/hybrid/fl_dp_vit_alzheimer.yaml
+# Federated Learning + Differential Privacy ViT hybrid
+
+experiment: "fl_dp_vit"
+description: "Federated Learning + Differential Privacy ViT on Alzheimer dataset"
+
+dataset:
+  name: "alzheimer"
+  batch_size: 32
+  augment: true
+  height_width: [224, 224]
+  num_workers: 4
+
+model:
+  architecture: "vit"
+  pretrained: true
+  num_classes: 4
+  checkpoint: "google/vit-base-patch16-224-in21k"
+
+privacy:
+  techniques:
+    - name: "federated_learning"
+      config:
+        num_clients: 3
+        num_rounds: 3
+        client_fraction: 1.0
+        min_clients: 3
+        strategy: "FedAvg"
+    - name: "differential_privacy"
+      config:
+        epsilon: 4.0
+        delta: 1e-5
+        max_grad_norm: 1.5
+        noise_multiplier: 0.7
+
+training:
+  epochs: 5  # Per client
+  learning_rate: 0.001
+  batch_size: 32
+  seed: 42
+
+expected_results:
+  accuracy: 0.970
+  training_time: 2850.0
+  energy_kwh: 0.108
+
+# =============================================================================
+
+# File: configs/experiments/hybrid/fl_smpc_combinations.yaml
+# Federated Learning + SMPC combinations
+
+fl_smpc_cnn_alzheimer:
+  experiment: "fl_smpc_cnn"
+  description: "Federated Learning + SMPC CNN on Alzheimer dataset"
+  
+  dataset:
+    name: "alzheimer"
+    batch_size: 16
+    augment: false
+    height_width: [224, 224]
+    num_workers: 2
+  
+  model:
+    architecture: "cnn"
+    pretrained: false
+    num_classes: 4
+  
+  privacy:
+    techniques:
+      - name: "federated_learning"
+        config:
+          num_clients: 3
+          num_rounds: 3
+          client_fraction: 1.0
+          min_clients: 3
+          strategy: "FedAvg"
+      - name: "secure_multiparty_computation"
+        config:
+          num_parties: 3
+          threshold: 2
+          protocol: "secret_sharing"
+  
+  training:
+    epochs: 5
+    learning_rate: 0.01
+    batch_size: 16
+    seed: 42
+  
+  expected_results:
+    accuracy: 0.940
+    training_time: 5400.0  # Very long due to FL+SMPC overhead
+    energy_kwh: 0.185
+
+# =============================================================================
+
+# File: configs/experiments/hybrid/advanced_privacy.yaml
+# Advanced privacy combinations and experimental configurations
+
+triple_privacy_cnn:
+  experiment: "fl_dp_smpc_cnn"
+  description: "Triple privacy: FL + DP + SMPC CNN (experimental)"
+  
+  dataset:
+    name: "alzheimer"
+    batch_size: 8  # Very small batch for maximum privacy
+    augment: false
+    height_width: [224, 224]
+    num_workers: 1
+  
+  model:
+    architecture: "cnn"
+    pretrained: false
+    num_classes: 4
+  
+  privacy:
+    techniques:
+      - name: "federated_learning"
+        config:
+          num_clients: 2
+          num_rounds: 2
+          client_fraction: 1.0
+          min_clients: 2
+          strategy: "FedAvg"
+      - name: "differential_privacy"
+        config:
+          epsilon: 8.0  # Higher epsilon needed for triple privacy
+          delta: 1e-4
+          max_grad_norm: 2.0
+          noise_multiplier: 0.5
+      - name: "secure_multiparty_computation"
+        config:
+          num_parties: 2
+          threshold: 2
+          protocol: "secret_sharing"
+  
+  training:
+    epochs: 3
+    learning_rate: 0.02
+    batch_size: 8
+    seed: 42
+  
+  expected_results:
+    accuracy: 0.890  # Significant privacy-utility tradeoff
+    training_time: 8400.0  # Extremely long training time
+    energy_kwh: 0.280
+    
+  notes:
+    - "Experimental configuration for maximum privacy"
+    - "Significant computational overhead expected"
+    - "May not converge in reasonable time"
